@@ -61,6 +61,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 const PORT = parseInt(process.env.PORT || "5000", 10);
 const MONGODB_URI = process.env.MONGODB_URI || "";
+const MONGO_USER = process.env.MONGO_USER || "";
+const MONGO_PASSWORD = process.env.MONGO_PASSWORD || "";
+const MONGO_REST = process.env.MONGO_REST || "";
 
 async function startServer(): Promise<void> {
   if (!MONGODB_URI) {
@@ -79,12 +82,14 @@ async function startServer(): Promise<void> {
     });
     return;
   }
-
   try {
     console.log("🔌 Connecting to MongoDB...");
-    await mongoose.connect(MONGODB_URI, {
-      dbName: "AppDb", // or process.env.DB_NAME
-    });
+    await mongoose.connect(
+      `${MONGODB_URI}${MONGO_USER}:${MONGO_PASSWORD}${MONGO_REST}`,
+      {
+        dbName: "AppDb", // or process.env.DB_NAME
+      },
+    );
     console.log("✅ MongoDB connected successfully.");
 
     app.listen(PORT, () => {
