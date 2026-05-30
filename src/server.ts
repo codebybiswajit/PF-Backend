@@ -8,6 +8,7 @@ dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 import authRouter from "./routes/auth";
 import usersRouter from "./routes/users";
+import resumeRouter from "./routes/resume";
 
 // ─── App setup ────────────────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/resume",resumeRouter);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 
