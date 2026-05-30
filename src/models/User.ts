@@ -65,6 +65,7 @@ const UserSchema = new Schema<IUserDocument>(
     education: { type: [EducationSchema], default: [] },
     experience: { type: [ExperienceSchema], default: [] },
     projects: { type: [ProjectSchema], default: [] },
+    portfolioSlug: { type: String, unique: true, sparse: true, trim: true },
   },
   {
     timestamps: true,

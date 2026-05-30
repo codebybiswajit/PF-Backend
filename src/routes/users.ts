@@ -35,6 +35,7 @@ router.put(
         education,
         experience,
         projects,
+        portfolioSlug,
       } = req.body as {
         firstName?: string;
         lastName?: string;
@@ -47,6 +48,7 @@ router.put(
         education?: any[];
         experience?: any[];
         projects?: any[];
+        portfolioSlug?: string;
       };
 
       // Build update object with only defined fields
@@ -62,6 +64,21 @@ router.put(
       if (education !== undefined) updateFields.education = education;
       if (experience !== undefined) updateFields.experience = experience;
       if (projects !== undefined) updateFields.projects = projects;
+
+      if (portfolioSlug !== undefined) {
+        const cleanSlug = portfolioSlug.toLowerCase().trim().replace(/[^a-z0-9-_]/g, '');
+        if (!cleanSlug) {
+          res.status(400).json({ message: "Portfolio URL slug cannot be empty." });
+          return;
+        }
+
+        const duplicate = await User.findOne({ portfolioSlug: cleanSlug, _id: { $ne: id } });
+        if (duplicate) {
+          res.status(409).json({ message: "This custom URL is already in use by another user." });
+          return;
+        }
+        updateFields.portfolioSlug = cleanSlug;
+      }
 
       const updatedUser = await User.findByIdAndUpdate(
         id,
@@ -105,6 +122,33 @@ router.get(
       console.error("[GET /users/:id/resume]", err);
       res.status(500).json({
         message: "Server error fetching resume data.",
+        error: err.message,
+      });
+    }
+  },
+);
+
+// ─── GET /public/:slug (public deep-linking lookup) ───────────────────────────
+
+router.get(
+  "/public/:slug",
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { slug } = req.params;
+      const slugStr = typeof slug === 'string' ? slug : String(slug);
+
+      const user = await User.findOne({ portfolioSlug: slugStr.toLowerCase().trim() }).select("-passwordHash");
+
+      if (!user) {
+        res.status(404).json({ message: "Portfolio not found." });
+        return;
+      }
+
+      res.status(200).json({ user });
+    } catch (err: any) {
+      console.error("[GET /users/public/:slug]", err);
+      res.status(500).json({
+        message: "Server error fetching portfolio data.",
         error: err.message,
       });
     }

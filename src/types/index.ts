@@ -36,6 +36,7 @@ export interface IUser {
   education: IEducation[];
   experience: IExperience[];
   projects: IProject[];
+  portfolioSlug?: string;
   createdAt?: Date;
 }
 

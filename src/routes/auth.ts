@@ -80,6 +80,11 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Generate unique portfolioSlug
+    const slugBase = `${firstName.toLowerCase().replace(/[^a-z0-9]/g, '')}-${lastName.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    const randomSuffix = Math.random().toString(36).substring(2, 6);
+    const portfolioSlug = `${slugBase}-${randomSuffix}`;
+
     // Create user
     const user = await User.create({
       firstName,
@@ -95,6 +100,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       education: education ?? [],
       experience: experience ?? [],
       projects: projects ?? [],
+      portfolioSlug,
     });
 
     const token = signToken({ userId: String(user._id), email: user.email });
@@ -132,6 +138,14 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     if (!isMatch) {
       res.status(401).json({ message: 'Invalid email or password.' });
       return;
+    }
+
+    // Backfill missing portfolioSlug on login if not already present
+    if (!user.portfolioSlug) {
+      const slugBase = `${user.firstName.toLowerCase().replace(/[^a-z0-9]/g, '')}-${user.lastName.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+      const randomSuffix = Math.random().toString(36).substring(2, 6);
+      user.portfolioSlug = `${slugBase}-${randomSuffix}`;
+      await user.save();
     }
 
     const token = signToken({ userId: String(user._id), email: user.email });
