@@ -13,13 +13,45 @@ import usersRouter from "./routes/users";
 
 const app = express();
 
+// ─── ALLOWED HOSTS MIDDLEWARE ──────────────────────────────────────────────────
+
+const allowedHosts = process.env.ALLOWED_HOSTS
+  ? process.env.ALLOWED_HOSTS.split(",").map((h) => h.trim())
+  : [
+      "localhost:5000",
+      "127.0.0.1:5000",
+      "biswajit-mohapatra-portfolio-backend.onrender.com",
+    ];
+
+app.use((req, res, next) => {
+  const host = req.headers.host;
+  // If host header is present, validate it against the allowedHosts list
+  if (host && !allowedHosts.includes(host) && !allowedHosts.includes("*")) {
+    res.status(403).json({ message: `Access denied: Host '${host}' is not allowed.` });
+    return;
+  }
+  next();
+});
+
+// Trust the proxy (Render / Load balancers)
+app.set("trust proxy", 1);
+
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173,https://biswajit-mohapatra-portfolio.onrender.com";
+const allowedOrigins = frontendUrl.split(",").map((o) => o.trim());
 
 app.use(
   cors({
-    origin: frontendUrl,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+        return callback(null, true);
+      }
+      const msg = `CORS policy violation: ${origin} is not whitelisted.`;
+      return callback(new Error(msg), false);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
