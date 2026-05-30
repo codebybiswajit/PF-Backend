@@ -179,4 +179,59 @@ router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<v
   }
 });
 
+// ─── POST /chat (protected) ──────────────────────────────────────────────────
+
+router.post('/chat', authMiddleware, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { messages } = req.body as { messages: any[] };
+
+    if (!messages || !Array.isArray(messages)) {
+      res.status(400).json({ message: 'messages array is required.' });
+      return;
+    }
+
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      res.status(500).json({ message: 'Groq API key is not configured on the server.' });
+      return;
+    }
+
+    const fetchFn = (globalThis as any).fetch;
+    if (!fetchFn) {
+      res.status(500).json({ message: 'Node.js global fetch is not available in this environment.' });
+      return;
+    }
+
+    const response = await fetchFn('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 512,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('[Groq API Error]', errText);
+      res.status(response.status).json({
+        message: 'Error communicating with Groq API.',
+        error: errText,
+      });
+      return;
+    }
+
+    const data = await response.json();
+    res.status(200).json(data);
+  } catch (err: any) {
+    console.error('[POST /auth/chat]', err);
+    res.status(500).json({ message: 'Server error during chat.', error: err.message });
+  }
+});
+
 export default router;
