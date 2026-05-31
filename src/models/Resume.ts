@@ -1,6 +1,4 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { ResumeData } from '../types';
-
 const ResumeSchema: Schema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },

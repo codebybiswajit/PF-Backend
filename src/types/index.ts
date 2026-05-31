@@ -1,24 +1,36 @@
 export interface IEducation {
   degree: string;
+  field?: string;
   institution: string;
+  location?: string;
   start: string;
   end: string;
   gpa?: string;
+  honors?: string;
+  courses?: string[];
 }
 
 export interface IExperience {
   title: string;
   company: string;
+  location?: string;
+  type?: string;
   start: string;
   end: string;
-  desc: string;
+  desc?: string; // legacy bullet points joined by newline
+  summary?: string;
+  bullets?: string[];
+  tech?: string[];
 }
 
 export interface IProject {
   name: string;
-  tech: string;
+  tagline?: string;
+  tech: string | string[]; // string (legacy) or string[] (rich)
   desc: string;
   url?: string;
+  repo?: string;
+  highlights?: string[];
 }
 
 export interface IUser {
@@ -31,13 +43,27 @@ export interface IUser {
   phone?: string;
   linkedin?: string;
   github?: string;
-  skills?: string;
+  twitter?: string;
+  location?: string;
+  website?: string;
+  skills?: string; // legacy flat skills
+  skillGroups?: ResumeSkillGroup[];
   summary?: string;
   education: IEducation[];
   experience: IExperience[];
   projects: IProject[];
   portfolioSlug?: string;
   createdAt?: Date;
+
+  // Rich resume integrations
+  tagline?: string;
+  profilePhoto?: string;
+  contact?: ResumeContact;
+  certifications?: ResumeCertification[];
+  languages?: ResumeLanguage[];
+  interests?: string[];
+  openToWork?: boolean;
+  availableFrom?: string;
 }
 
 export interface IAuthResponse {

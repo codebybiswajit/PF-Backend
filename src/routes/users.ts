@@ -30,12 +30,24 @@ router.put(
         phone,
         linkedin,
         github,
+        twitter,
+        location,
+        website,
         skills,
         summary,
         education,
         experience,
         projects,
         portfolioSlug,
+        tagline,
+        profilePhoto,
+        contact,
+        skillGroups,
+        certifications,
+        languages,
+        interests,
+        openToWork,
+        availableFrom,
       } = req.body as {
         firstName?: string;
         lastName?: string;
@@ -43,12 +55,24 @@ router.put(
         phone?: string;
         linkedin?: string;
         github?: string;
+        twitter?: string;
+        location?: string;
+        website?: string;
         skills?: string;
         summary?: string;
         education?: any[];
         experience?: any[];
         projects?: any[];
         portfolioSlug?: string;
+        tagline?: string;
+        profilePhoto?: string;
+        contact?: any;
+        skillGroups?: any[];
+        certifications?: any[];
+        languages?: any[];
+        interests?: string[];
+        openToWork?: boolean;
+        availableFrom?: string;
       };
 
       // Build update object with only defined fields
@@ -59,11 +83,23 @@ router.put(
       if (phone !== undefined) updateFields.phone = phone;
       if (linkedin !== undefined) updateFields.linkedin = linkedin;
       if (github !== undefined) updateFields.github = github;
+      if (twitter !== undefined) updateFields.twitter = twitter;
+      if (location !== undefined) updateFields.location = location;
+      if (website !== undefined) updateFields.website = website;
       if (skills !== undefined) updateFields.skills = skills;
       if (summary !== undefined) updateFields.summary = summary;
       if (education !== undefined) updateFields.education = education;
       if (experience !== undefined) updateFields.experience = experience;
       if (projects !== undefined) updateFields.projects = projects;
+      if (tagline !== undefined) updateFields.tagline = tagline;
+      if (profilePhoto !== undefined) updateFields.profilePhoto = profilePhoto;
+      if (contact !== undefined) updateFields.contact = contact;
+      if (skillGroups !== undefined) updateFields.skillGroups = skillGroups;
+      if (certifications !== undefined) updateFields.certifications = certifications;
+      if (languages !== undefined) updateFields.languages = languages;
+      if (interests !== undefined) updateFields.interests = interests;
+      if (openToWork !== undefined) updateFields.openToWork = openToWork;
+      if (availableFrom !== undefined) updateFields.availableFrom = availableFrom;
 
       if (portfolioSlug !== undefined) {
         const cleanSlug = portfolioSlug.toLowerCase().trim().replace(/[^a-z0-9-_]/g, '');
